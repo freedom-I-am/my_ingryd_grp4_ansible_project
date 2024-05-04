@@ -1,0 +1,48 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+  - name: update  node1's (Ubuntu) software
+    apt:
+      update_cache: true
+    when: ansible_distribution == "Ubuntu"
+
+
+  - name: update node2's (LinuxOracle) software
+    dnf:
+      update_cache: true
+    when: ansible_distribution == "OracleLinux"
+    
+    
+  - name: create user admin
+    user:
+      name: admin
+      home: /home/admin
+      shell: /bin/bash
+      state: present
+      password: "{{ 'Fr$ed$die007' | password_hash('sha512') }}"
+      groups:
+         - sudo
+         - adm
+         - root
+      append: yes
+         
+         
+  - name: make user admin a sudoer
+    lineinfile:
+      dest: /etc/sudoers
+      regexp: '^%sudo'
+      line: '^sudo ALL=(ALL) NOPASSWD:ALL'
+      state: present
+      
+      
+  - name: add ssh key to user admin on all nodes
+    authorized_key:
+       user: admin
+       state: present
+       key:  ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAINBrXOU1HeS/MHkM+qu4aMX9zqH0RS5IV1yVnyL6TTOJ ansible
+
+
+  

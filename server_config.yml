@@ -1,0 +1,31 @@
+---
+
+- hosts: all
+  become: true
+  tasks:
+
+    - name: install packages and update cache for Ubuntu
+      apt:
+        name:
+          - apache2
+          - php
+        update_cache: true
+      when: ansible_distribution == "Ubuntu"
+
+
+    - name: install packages and update cache for OracleLinux
+      dnf:
+        name:
+          - httpd
+          - php
+        update_cache: true
+      when: ansible_distribution == "OracleLinux"
+      
+      
+      
+    - name: start httpd service
+      service:
+         name: httpd
+         state: started
+         enabled: yes
+      when: ansible_distribution == "OracleLinux"    
